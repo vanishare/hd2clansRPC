@@ -1,5 +1,6 @@
 # WARNING! THIS PROJECT WAS MADE WITH CODEX, IF YOU DON'T TRUST IT OR JUST GENERAL HATER JOE, MOVE ALONG!
 
+<img width="402" height="164" alt="2026-08-27 17_06_35-" src="https://github.com/user-attachments/assets/93187243-9309-4c32-bc29-50afdb25d570" />
 <img width="220" height="144" alt="2026-08-27 13_09_11-" src="https://github.com/user-attachments/assets/5f97981b-4e97-4bf4-89fa-4b151d9fa975" />
 
 # HD2 Clan Discord RPC
