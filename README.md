@@ -1,4 +1,6 @@
-# HD2 Clan Discord RPC
+# WARNING! THIS PROJECT WAS MADE WITH CODEX, IF YOU DON'T TRUST IT OR JUST GENERAL HATER JOE, MOVE ALONG!
+
+HD2 Clan Discord RPC
 
 Custom Discord Rich Presence for Helldivers 2 clans on [HD2 Clans](https://hd2clans.com).
 
