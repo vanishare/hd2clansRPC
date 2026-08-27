@@ -18,6 +18,8 @@ The app waits for `helldivers2.exe`, reads the configured clan page, shows the c
 - Reloads `hd2_rpc_config.json` while running when the file changes.
 - Adds a tray icon with config, log, reload, reconnect, and exit actions.
 - Writes a rotating log so the log file does not grow forever.
+- Registers itself in the current user's Windows startup when `autostart` is enabled.
+- Keeps only one running instance; a second launch exits immediately.
 
 ## Discord setup
 
@@ -45,6 +47,8 @@ For a release build:
 3. Rename the copied file to `hd2_rpc_config.json`.
 4. Edit `client_id`, `clan_url`, `hangar_url`, `clan_name`, `large_image`, and `small_image`.
 5. Run the exe.
+
+When `autostart` is `true`, the app adds itself to the current user's Windows startup. To stop it, use the tray menu's `Exit` action first; launching the exe again while one copy is already running will not create a second active instance.
 
 Example clan config:
 

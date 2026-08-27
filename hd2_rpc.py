@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from html.parser import HTMLParser
 import logging
 from logging.handlers import RotatingFileHandler
+import ctypes
 
 import psutil
 from pypresence import Presence
@@ -47,6 +48,7 @@ DEFAULT_CONFIG = {
 }
 
 REG_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
+ERROR_ALREADY_EXISTS = 183
 COMMANDS = {
     "exit": False,
     "reload_config": False,
@@ -255,10 +257,23 @@ def setup_autostart(cfg):
     except Exception:
         pass
     try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, REG_PATH, 0, winreg.KEY_SET_VALUE) as key:
+        with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, REG_PATH, 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, f'"{exe_path}"')
     except Exception:
         pass
+
+
+def acquire_single_instance_lock(cfg, logger):
+    app_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(cfg.get("app_name") or DEFAULT_CONFIG["app_name"]))
+    mutex_name = f"Local\\{app_name}_single_instance"
+    handle = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
+    if not handle:
+        logger.error("Failed to create single-instance mutex")
+        return None
+    if ctypes.windll.kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+        logger.info("Another instance is already running; exiting")
+        return None
+    return handle
 
 
 def absolute(base_url, href):
@@ -638,6 +653,9 @@ def build_payload(cfg, status, start_time):
 def main():
     cfg = load_config()
     logger = setup_logging(cfg)
+    single_instance_lock = acquire_single_instance_lock(cfg, logger)
+    if not single_instance_lock:
+        return
     setup_autostart(cfg)
     tray_icon = start_tray_icon(cfg, logger) if cfg.get("tray_enabled", True) else None
 
@@ -769,6 +787,11 @@ def main():
     if tray_icon:
         try:
             tray_icon.stop()
+        except Exception:
+            pass
+    if single_instance_lock:
+        try:
+            ctypes.windll.kernel32.CloseHandle(single_instance_lock)
         except Exception:
             pass
 

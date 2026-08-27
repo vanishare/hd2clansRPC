@@ -1,0 +1,11 @@
+build/
+dist/
+XLAM/
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.log.*
+*.bak
+hd2_rpc_config.json
+hd2_custom_clan_rpc_new.spec
