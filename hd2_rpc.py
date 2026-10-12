@@ -45,6 +45,8 @@ DEFAULT_CONFIG = {
     "log_max_bytes": 262144,
     "log_backup_count": 3,
     "tray_enabled": True,
+    "status_error_fallback_after": 3,
+    "runtime_missing_exit": True,
 }
 
 REG_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -144,6 +146,25 @@ def config_mtime():
         return os.path.getmtime(config_path())
     except OSError:
         return 0
+
+
+def make_fallback_status(cfg):
+    return ClanStatus(
+        "fallback",
+        cfg.get("fallback_details", DEFAULT_CONFIG["fallback_details"]),
+        cfg.get("fallback_state", DEFAULT_CONFIG["fallback_state"]),
+        cfg.get("clan_url", DEFAULT_CONFIG["clan_url"]),
+        cfg.get("clan_name", ""),
+    )
+
+
+def pyinstaller_runtime_missing():
+    if not getattr(sys, "frozen", False):
+        return False
+    meipass = getattr(sys, "_MEIPASS", "")
+    if not meipass:
+        return False
+    return not os.path.exists(os.path.join(meipass, "base_library.zip"))
 
 
 def load_config():
@@ -663,10 +684,11 @@ def main():
     first_seen = None
     game_start = None
     current_pid = None
-    status = ClanStatus("fallback", cfg["fallback_details"], cfg["fallback_state"], cfg["clan_url"], cfg.get("clan_name", ""))
+    status = make_fallback_status(cfg)
     last_site_refresh = 0
     last_presence = 0
     last_cfg_mtime = config_mtime()
+    consecutive_status_errors = 0
 
     while True:
         try:
@@ -684,7 +706,8 @@ def main():
                 COMMANDS["reload_config"] = False
                 last_site_refresh = 0
                 last_presence = 0
-                status = ClanStatus("fallback", cfg["fallback_details"], cfg["fallback_state"], cfg["clan_url"], cfg.get("clan_name", ""))
+                status = make_fallback_status(cfg)
+                consecutive_status_errors = 0
                 logger.info("Config reloaded")
                 if str(cfg.get("client_id", "")) != old_client_id and rpc:
                     try:
@@ -743,9 +766,18 @@ def main():
             if now - last_site_refresh >= float(cfg.get("site_refresh_seconds") or 300):
                 try:
                     status = get_clan_status(cfg)
+                    consecutive_status_errors = 0
                     logger.info("Selected status kind=%s details=%r state=%r url=%s", status.kind, status.details, status.state, status.url)
                 except Exception:
+                    consecutive_status_errors += 1
                     logger.exception("Failed to refresh clan status")
+                    if cfg.get("runtime_missing_exit", True) and pyinstaller_runtime_missing():
+                        logger.critical("PyInstaller runtime files are missing; exiting to avoid stale presence")
+                        break
+                    if consecutive_status_errors >= int(cfg.get("status_error_fallback_after") or 3):
+                        status = make_fallback_status(cfg)
+                        last_presence = 0
+                        logger.warning("Using fallback status after %s consecutive refresh errors", consecutive_status_errors)
                 last_site_refresh = now
 
             if rpc is None:

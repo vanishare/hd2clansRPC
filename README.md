@@ -21,6 +21,7 @@ The app waits for `helldivers2.exe`, reads the configured clan page, shows the c
 - Writes a rotating log so the log file does not grow forever.
 - Registers itself in the current user's Windows startup when `autostart` is enabled.
 - Keeps only one running instance; a second launch exits immediately.
+- Falls back to configured fallback status after repeated site refresh errors.
 
 ## Discord setup
 
@@ -43,13 +44,15 @@ Also note that Discord usually does not show Rich Presence buttons to the accoun
 
 For a release build:
 
-1. Download `hd2_custom_clan_rpc.exe`.
-2. Copy `hd2_rpc_config.example.json` next to the exe.
+1. Download and unpack the release folder.
+2. Copy `hd2_rpc_config.example.json` next to `hd2_custom_clan_rpc.exe`.
 3. Rename the copied file to `hd2_rpc_config.json`.
 4. Edit `client_id`, `clan_url`, `hangar_url`, `clan_name`, `large_image`, and `small_image`.
 5. Run the exe.
 
 When `autostart` is `true`, the app adds itself to the current user's Windows startup. To stop it, use the tray menu's `Exit` action first; launching the exe again while one copy is already running will not create a second active instance.
+
+Release builds use PyInstaller `--onedir` on purpose. This is less tidy than a single exe, but it is more reliable for long-running tray apps because Windows or cleanup tools can remove the temporary `_MEI...` folder used by `--onefile` builds.
 
 Example clan config:
 
@@ -81,12 +84,12 @@ pip install -r requirements.txt
 compile.bat
 ```
 
-The built exe will be written to `dist/hd2_custom_clan_rpc.exe`.
+The built app folder will be written to `dist/hd2_custom_clan_rpc/`.
 
 Manual build command:
 
 ```powershell
-python -m PyInstaller --onefile --windowed --noconsole --noupx --icon=hd2_icon.ico --name "hd2_custom_clan_rpc" --hidden-import=psutil --hidden-import=pystray --hidden-import=PIL --hidden-import=PIL.Image --hidden-import=PIL.ImageDraw hd2_rpc.py
+python -m PyInstaller --onedir --windowed --noconsole --noupx --icon=hd2_icon.ico --name "hd2_custom_clan_rpc" --hidden-import=psutil --hidden-import=pystray --hidden-import=PIL --hidden-import=PIL.Image --hidden-import=PIL.ImageDraw hd2_rpc.py
 ```
 
 ## Files for GitHub

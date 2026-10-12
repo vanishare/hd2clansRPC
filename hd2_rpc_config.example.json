@@ -19,6 +19,8 @@
   "log_max_bytes": 262144,
   "log_backup_count": 3,
   "tray_enabled": true,
+  "status_error_fallback_after": 3,
+  "runtime_missing_exit": true,
   "launch_delay_seconds": 20,
   "process_check_seconds": 30,
   "presence_refresh_seconds": 30,
