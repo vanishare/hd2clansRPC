@@ -106,3 +106,5 @@ Recommended source files:
 - `.gitignore`
 
 Do not commit local runtime files such as `dist/`, `build/`, `__pycache__/`, `*.log`, or your real `hd2_rpc_config.json`.
+
+<a href="https://www.buymeacoffee.com/shaggoth">🍺BUY ME A BEER</a>
