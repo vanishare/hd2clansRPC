@@ -107,4 +107,4 @@ Recommended source files:
 
 Do not commit local runtime files such as `dist/`, `build/`, `__pycache__/`, `*.log`, or your real `hd2_rpc_config.json`.
 
-<a href="https://www.buymeacoffee.com/shaggoth"><img alt="Buy me a beer" src="https://github.com/user-attachments/assets/39d1cf81-1fb4-4543-930d-60e6e78bede8"/></a>
+<a href="https://www.buymeacoffee.com/shaggoth"><img width="49" height="38" alt="Buy me a beer" src="https://github.com/user-attachments/assets/39d1cf81-1fb4-4543-930d-60e6e78bede8"/></a>
